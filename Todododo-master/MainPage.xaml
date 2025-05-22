@@ -1,0 +1,82 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TODO.MainPage"
+             BackgroundColor="white"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled">
+
+    <VerticalStackLayout Margin="30" Spacing="15"
+                         VerticalOptions="CenterAndExpand"
+                         HorizontalOptions="Center">
+
+        <Image Source="taskflowlogo.png"
+               HeightRequest="220"
+               WidthRequest="220"
+               Aspect="AspectFill" />
+
+        <Label Text="Hey You, great to see you again!"
+               FontSize="18"
+               TextColor="#6A9C89"
+               HorizontalOptions="Center"
+               FontAttributes="Bold"/>
+
+        <!-- Wrap Entry in Frame to add CornerRadius -->
+        <Frame BackgroundColor="#C4DAD2" 
+               CornerRadius="15"
+               Padding="0" 
+               HeightRequest="55" 
+               WidthRequest="250">
+            <Entry x:Name="EmailEntry" 
+                   PlaceholderColor="#8DB8AF"
+                   Placeholder="Email"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+
+        <VerticalStackLayout Spacing="5">
+
+            <!-- Wrap Password Entry in Frame to add CornerRadius -->
+            <Frame BackgroundColor="#C4DAD2" 
+                   CornerRadius="15"
+                   Padding="0" 
+                   HeightRequest="55" 
+                   WidthRequest="250">
+                <Entry x:Name="PasswordEntry"
+                       PlaceholderColor="#8DB8AF"
+                       Placeholder="Password"
+                       IsPassword="True"
+                       TextColor="#8DB8AF"
+                       FontSize="16" />
+            </Frame>
+
+            <Label Text="Forgot Password?"
+                   TextColor="Black"
+                   FontSize="10"
+                   Padding="20,0,0,0"
+                   x:Name="ForgotPassword">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnForgotPasswordTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+        </VerticalStackLayout>
+
+        <Button Text="Sign In"
+                BackgroundColor="#395144"
+                TextColor="White"
+                FontSize="16"
+                HeightRequest="45"
+                WidthRequest="150"
+                Clicked="OnSignInClicked"/>
+
+        <Button Text="Sign Up"
+                BackgroundColor="#6A9C89"
+                TextColor="White"
+                FontSize="16"
+                HeightRequest="45"
+                WidthRequest="150"
+                Clicked="OnSignUpClicked"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>

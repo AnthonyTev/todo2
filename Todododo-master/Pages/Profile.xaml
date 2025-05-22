@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TODO.Pages.Profile"
+             xmlns:components="clr-namespace:TODO.Pages"
+             Title="Profile">
+    <Grid>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <!-- Main Content -->
+        <VerticalStackLayout Grid.Row="0" Padding="40" >
+
+            <Image Source="bigprofile.png"
+                   HeightRequest="220"
+                   WidthRequest="220"
+                   Aspect="AspectFill" />
+            <Button Text="Sign Out"
+            BackgroundColor="#6A9C89"
+                TextColor="White"
+                FontSize="16"
+                HeightRequest="45"
+                WidthRequest="150"
+                Clicked="Button_Clicked"/>  
+        </VerticalStackLayout>
+
+
+        <!-- Footer -->
+        <components:Footer Grid.Row="1" />
+    </Grid>
+</ContentPage>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:components="clr-namespace:TODO.Pages"
+             x:Class="TODO.Pages.CompletedPage"
+             Title="Completed"
+             
+             BackgroundColor="White">
+    
+    
+    <Grid RowDefinitions="*,Auto">
+        <!-- Task List -->
+        <ScrollView Grid.Row="0">
+            <VerticalStackLayout Padding="10" Spacing="10">
+                <!-- Repeat this block for each task -->
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem  BackgroundColor="Red" IconImageSource="trash.png" />
+                            <SwipeItem  BackgroundColor="#F0AD4E" IconImageSource="edit.png" Clicked="GotoEditPage" />
+                            
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Frame BackgroundColor="#D6E9E5" BorderColor="Transparent" CornerRadius="10" Padding="10" HasShadow="True" Margin="20,0,20,0">
+                        <Label Text="Completed 1" FontSize="16" VerticalOptions="Center" TextColor="#74968F" />
+                    </Frame>
+                </SwipeView>
+
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem  BackgroundColor="Red" IconImageSource="trash.png" />
+                            <SwipeItem  BackgroundColor="#F0AD4E" IconImageSource="edit.png" Clicked="GotoEditPage" />
+
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Frame BackgroundColor="#D6E9E5" BorderColor="Transparent" CornerRadius="10" Padding="10" HasShadow="True" Margin="20,0,20,0">
+                        <Label Text="Completed 2" FontSize="16" VerticalOptions="Center" TextColor="#74968F" />
+                    </Frame>
+                </SwipeView>
+
+
+                <SwipeView>
+                    <SwipeView.RightItems>
+                        <SwipeItems Mode="Reveal">
+                            <SwipeItem  BackgroundColor="Red" IconImageSource="trash.png" />
+                            <SwipeItem  BackgroundColor="#F0AD4E" IconImageSource="edit.png" Clicked="GotoEditPage" />
+
+                        </SwipeItems>
+                    </SwipeView.RightItems>
+
+                    <Frame BackgroundColor="#D6E9E5" BorderColor="Transparent" CornerRadius="10" Padding="10" HasShadow="True" Margin="20,0,20,0">
+                        <Label Text="Completed 3" FontSize="16" VerticalOptions="Center" TextColor="#74968F" />
+                    </Frame>
+                </SwipeView>
+
+
+
+
+
+                <!-- Repeat Frames for other tasks -->
+            </VerticalStackLayout>
+        </ScrollView>
+
+
+
+        <!-- Footer -->
+        <components:Footer Grid.Row="1" />
+
+    </Grid>
+</ContentPage>

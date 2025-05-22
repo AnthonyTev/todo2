@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TODO.Pages.Footer">
+
+    <Grid BackgroundColor="#6A9C89" Padding="10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+
+        <VerticalStackLayout Grid.Column="0" HorizontalOptions="Center">
+            <ImageButton Source="task.png"
+                         HeightRequest="24"
+                         WidthRequest="24"
+                         BackgroundColor="Transparent"
+                         Padding="0"
+                         Margin="0"
+                         BorderWidth="0"
+                         Aspect="AspectFill"
+                         Clicked="ImageButton_Clicked"/>
+            <Label Text="ToDo" FontSize="13" TextColor="White" HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Column="1" HorizontalOptions="Center">
+            <ImageButton Source="complete.png" 
+                         HeightRequest="24"
+                         WidthRequest="24"
+                         BackgroundColor="Transparent"
+                         Padding="0"
+                         Margin="0"
+                         BorderWidth="0"
+                         Aspect="AspectFill"
+                         Clicked="ImageButton_Clicked_1"/>
+            <Label Text="Completed" FontSize="13" TextColor="White" HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Grid.Column="2" HorizontalOptions="Center">
+            <ImageButton Source="profile.png"
+                         HeightRequest="24"
+                         WidthRequest="24"
+                         BackgroundColor="Transparent"
+                         Padding="0"
+                         Margin="0"
+                         BorderWidth="0"
+                         Aspect="AspectFill"
+                         Clicked="ImageButton_Clicked_2"/>
+            <Label Text="Profile" FontSize="13" TextColor="White" HorizontalTextAlignment="Center"/>
+        </VerticalStackLayout>
+    </Grid>
+</ContentView>

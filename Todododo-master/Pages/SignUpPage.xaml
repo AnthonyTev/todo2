@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TODO.SignUpPage"
+             Shell.NavBarIsVisible="False"
+             Shell.FlyoutBehavior="Disabled"
+             BackgroundColor="white"
+             Title="Sign Up">
+
+    <VerticalStackLayout Margin="30" Spacing="15"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Center">
+
+        <Image Source="taskflowlogo.png"
+               HeightRequest="220"
+               WidthRequest="220"
+               Aspect="AspectFill" />
+
+        <!-- First Name -->
+        <Frame BackgroundColor="#C4DAD2" CornerRadius="15" Padding="0" HeightRequest="50" WidthRequest="250">
+            <Entry x:Name="FirstNameEntry"
+                   Placeholder="First Name"
+                   PlaceholderColor="#8DB8AF"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+        
+        <!-- Last Name -->
+        <Frame BackgroundColor="#C4DAD2" CornerRadius="15" Padding="0" HeightRequest="50" WidthRequest="250">
+            <Entry x:Name="LastNameEntry"
+                   Placeholder="Last Name"
+                   PlaceholderColor="#8DB8AF"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+
+        <!-- Email -->
+        <Frame BackgroundColor="#C4DAD2" CornerRadius="15" Padding="0" HeightRequest="50" WidthRequest="250">
+            <Entry x:Name="EmailEntry"
+                   Placeholder="Email"
+                   PlaceholderColor="#8DB8AF"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+
+        <!-- Password -->
+        <Frame BackgroundColor="#C4DAD2" CornerRadius="15" Padding="0" HeightRequest="50" WidthRequest="250">
+            <Entry x:Name="PasswordEntry"
+                   Placeholder="Password"
+                   IsPassword="True"
+                   PlaceholderColor="#8DB8AF"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+
+        <!-- Confirm Password -->
+        <Frame BackgroundColor="#C4DAD2" CornerRadius="15" Padding="0" HeightRequest="50" WidthRequest="250">
+            <Entry x:Name="ConfirmPasswordEntry"
+                   Placeholder="Confirm Password"
+                   IsPassword="True"
+                   PlaceholderColor="#8DB8AF"
+                   TextColor="#8DB8AF"
+                   FontSize="16" />
+        </Frame>
+
+        <Button Text="Sign Up"
+                BackgroundColor="#6A9C89"
+                TextColor="White"
+                FontSize="16"
+                HeightRequest="45"
+                WidthRequest="150"
+                Clicked="OnSignUpConfirmClicked"/>
+
+        <Button Text="Sign In"
+                BackgroundColor="#395144"
+                TextColor="White"
+                FontSize="16"
+                HeightRequest="45"
+                WidthRequest="150"
+                Clicked="OnSignInClicked"/>
+
+    </VerticalStackLayout>
+
+</ContentPage>
