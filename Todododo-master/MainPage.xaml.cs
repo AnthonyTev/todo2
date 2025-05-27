@@ -14,8 +14,8 @@ namespace TODO
 
         private async void OnSignInClicked(object sender, EventArgs e)
         {
-            string email = EmailEntry.Text?.Trim();
-            string password = PasswordEntry.Text?.Trim();
+            string email = (EmailEntry.Text ?? string.Empty).Trim();
+            string password = (PasswordEntry.Text ?? string.Empty).Trim();
 
             if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
             {
@@ -25,7 +25,7 @@ namespace TODO
 
             var result = await _apiService.SignInAsync(email, password);
 
-            if (result.Status)//(result.Status == 200)
+            if (result != null && result.Status) // (result.Status == 200)
             {
                 await DisplayAlert("Success", $"Welcome {result.Data.FirstName}!", "Continue");
 
@@ -38,11 +38,11 @@ namespace TODO
             }   
             else
             {
-                await DisplayAlert("Login Failed", result.Message, "OK");
+                await DisplayAlert("Login Failed", result?.Message ?? "Unknown error occurred.", "OK");
             }
         }
 
-        private async void OnSignUpClicked(object sender, EventArgs e)
+        private static async void OnSignUpClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(TODO.SignUpPage));
         }

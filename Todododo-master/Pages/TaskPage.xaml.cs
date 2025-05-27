@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using TODO.Models;
 using TODO.Services;
 
@@ -8,10 +9,19 @@ namespace TODO.Pages
         private readonly ApiService _apiService;
         private List<TaskModel> _tasks = new();
 
+        public ObservableCollection<TaskItem> Tasks { get; set; }
+
         public TaskPage()
         {
             InitializeComponent();
             _apiService = new ApiService();
+            Tasks = new ObservableCollection<TaskItem>
+            {
+                new TaskItem { Title = "Buy groceries" },
+                new TaskItem { Title = "Walk the dog" },
+                new TaskItem { Title = "Finish project" }
+            };
+            BindingContext = this;
         }
 
         protected override async void OnAppearing()
@@ -46,7 +56,7 @@ namespace TODO.Pages
             }
         }
 
-        private async void OnEditTaskClicked(object sender, EventArgs e)
+        private static async void OnEditTaskClicked(object sender, EventArgs e)
         {
             if ((sender as Button)?.BindingContext is TaskModel task)
             {
@@ -67,7 +77,6 @@ namespace TODO.Pages
                     await LoadTasks();
             }
         }
-
         private async void OnReorderCompleted(object sender, EventArgs e)
         {
             var reorderedTasks = TaskCollectionView.ItemsSource?.Cast<TaskModel>().ToList();
@@ -79,6 +88,48 @@ namespace TODO.Pages
 
             await Task.WhenAll(reorderedTasks.Select(task => _apiService.UpdateTaskOrderAsync(task)));
         }
+
+        private void OnMoveUpClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var task = button?.BindingContext as TaskItem;
+            if (task == null)
+                return;
+            int index = -1;
+            if (task != null)
+                index = Tasks.IndexOf(task);
+            if (index > 0)
+            {
+                Tasks.Move(index, index - 1);
+            }
+        }
+
+        private void OnMoveDownClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var task = button?.BindingContext as TaskItem;
+            if (task == null)
+                return;
+            var index = Tasks.IndexOf(task);
+            if (index < Tasks.Count - 1 && index >= 0)
+            {
+                Tasks.Move(index, index + 1);
+            }
+        }
+
+        private void OnDeleteTaskItemClicked(object sender, EventArgs e)
+        {
+            var button = sender as Button;
+            var task = button?.BindingContext as TaskItem;
+            if (task != null)
+                Tasks.Remove(task);
+        }
+    }
+
+    public class TaskItem
+    {
+        public string? Title { get; set; }
+        public bool IsCompleted { get; set; }
     }
 }
 

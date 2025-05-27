@@ -23,17 +23,14 @@ namespace TODO.Pages
 
         private async void OnDeleteTaskClicked(object sender, EventArgs e)
         {
-            if ((sender as SwipeItem)?.CommandParameter is TaskModel task)
+            if ((sender as SwipeItem)?.CommandParameter is TaskModel task && await DisplayAlert("Confirm", "Delete this task?", "Yes", "No"))
             {
-                if (await DisplayAlert("Confirm", "Delete this task?", "Yes", "No"))
-                {
-                    await _apiService.DeleteTaskAsync(task.Id);
-                    OnAppearing(); // refresh list
-                }
+                await _apiService.DeleteTaskAsync(task.Id);
+                OnAppearing(); // refresh list
             }
         }
 
-        private async void GotoEditPage(object sender, EventArgs e)
+        private static async void GotoEditPage(object sender, EventArgs e)
         {
             if ((sender as SwipeItem)?.CommandParameter is TaskModel task)
             {

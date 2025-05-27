@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="TODO.Pages.TaskPage"
@@ -8,13 +7,14 @@
         <StackLayout Padding="10">
             <CollectionView x:Name="TaskCollectionView"
                             SelectionMode="None"
-                            ReorderMode="Enabled"
-                            ReorderCompleted="OnReorderCompleted">
+                            ItemsSource="{Binding Tasks}">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <StackLayout Orientation="Horizontal" Padding="5" Spacing="10">
-                            <CheckBox IsChecked="{Binding IsCompleted}" CheckedChanged="OnCompletedChanged" />
+                            <CheckBox IsChecked="{Binding IsCompleted}" />
                             <Label Text="{Binding Title}" VerticalOptions="Center" />
+                            <Button Text="↑" Clicked="OnMoveUpClicked" />
+                            <Button Text="↓" Clicked="OnMoveDownClicked" />
                             <Button Text="Edit" Clicked="OnEditTaskClicked" />
                             <Button Text="Delete" Clicked="OnDeleteTaskClicked" />
                         </StackLayout>

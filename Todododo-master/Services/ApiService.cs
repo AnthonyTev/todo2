@@ -8,12 +8,17 @@ namespace TODO.Services
     public class ApiService
     {
         private readonly HttpClient _httpClient;
+        private const string JsonMediaType = "application/json";
 
         public ApiService()
         {
+            var baseUrl = Environment.GetEnvironmentVariable("API_BASE_URL");
+            if (string.IsNullOrEmpty(baseUrl))
+                throw new InvalidOperationException("API_BASE_URL environment variable is not set.");
+
             _httpClient = new HttpClient
             {
-                BaseAddress = new Uri("https://your-api-url.com") // <-- replace with real URL
+                BaseAddress = new Uri(baseUrl)
             };
         }
 
@@ -23,9 +28,9 @@ namespace TODO.Services
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<TaskModel>(json);
+                return JsonConvert.DeserializeObject<TaskModel>(json) ?? new TaskModel();
             }
-            return null;
+            return new TaskModel();
         }
 
         public async Task<bool> DeleteTaskAsync(int taskId)
@@ -37,7 +42,7 @@ namespace TODO.Services
         public async Task<bool> UpdateTaskAsync(TaskModel task)
         {
             var json = JsonConvert.SerializeObject(task);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, JsonMediaType);
             var response = await _httpClient.PutAsync($"/tasks/{task.Id}", content);
             return response.IsSuccessStatusCode;
         }
@@ -53,14 +58,14 @@ namespace TODO.Services
             if (response.IsSuccessStatusCode)
             {
                 var json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<List<TaskModel>>(json);
+                return JsonConvert.DeserializeObject<List<TaskModel>>(json) ?? new List<TaskModel>();
             }
             return new List<TaskModel>();
         }
         public async Task<bool> AddTaskAsync(TaskModel task)
         {
             var json = JsonConvert.SerializeObject(task);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var content = new StringContent(json, Encoding.UTF8, JsonMediaType);
             var response = await _httpClient.PostAsync("/tasks", content);
             return response.IsSuccessStatusCode;
         }
