@@ -1,119 +1,86 @@
+using TODO.Models;
 using TODO.Services;
-using Microsoft.Maui.Controls;
-using System;
-using System.Linq;
 
-namespace TODO.Pages;
-
-public partial class TaskPage : ContentPage
+namespace TODO.Pages
 {
-    private readonly ApiService _apiService = new ApiService();
-
-    public TaskPage()
+    public partial class TaskPage : ContentPage
     {
-        InitializeComponent();
-        LoadTasks(); // Load tasks when page is initialized
-    }
+        private readonly ApiService _apiService;
+        private List<TaskModel> _tasks = new();
 
-    private async void LoadTasks()
-    {
-        try
+        public TaskPage()
         {
-            var result = await _apiService.GetTasksAsync("active", SessionData.UserId);
+            InitializeComponent();
+            _apiService = new ApiService();
+        }
 
-            if (result.Status == 200 && result.Data?.Any() == true)
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await LoadTasks();
+        }
+
+        private async Task LoadTasks()
+        {
+            var userId = Preferences.Get("user_id", 0);
+            if (userId == 0)
             {
-                TaskListContainer.Children.Clear(); // Clear existing items
+                await DisplayAlert("Error", "User not logged in.", "OK");
+                return;
+            }
 
-                foreach (var task in result.Data.Values)
+            _tasks = await _apiService.GetTasksAsync(userId) ?? new List<TaskModel>();
+            TaskCollectionView.ItemsSource = _tasks;
+        }
+
+        private async void OnDeleteTaskClicked(object sender, EventArgs e)
+        {
+            if ((sender as Button)?.BindingContext is TaskModel task)
+            {
+                bool confirm = await DisplayAlert("Confirm", "Delete this task?", "Yes", "No");
+                if (confirm)
                 {
-                    var swipeView = new SwipeView
-                    {
-                        RightItems = new SwipeItems
-                        {
-                            new SwipeItem
-                            {
-                                BackgroundColor = Colors.Red,
-                                IconImageSource = "trash.png",
-                                Command = new Command(async () => await DeleteTask(task.ItemId))
-                            },
-                            new SwipeItem
-                            {
-                                BackgroundColor = Color.FromArgb("#F0AD4E"),
-                                IconImageSource = "edit.png",
-                                Command = new Command(() => GotoEditPage(task.ItemId))
-                            },
-                            new SwipeItem
-                            {
-                                BackgroundColor = Colors.Green,
-                                IconImageSource = "check.png",
-                                Command = new Command(async () => await MarkAsDone(task.ItemId))
-                            }
-                        },
-                        Content = new Frame
-                        {
-                            BackgroundColor = Color.FromArgb("#D6E9E5"),
-                            BorderColor = Colors.Transparent,
-                            CornerRadius = 10,
-                            Padding = 10,
-                            HasShadow = true,
-                            Margin = new Thickness(20, 0, 20, 0),
-                            Content = new Label
-                            {
-                                Text = task.ItemName,
-                                FontSize = 16,
-                                TextColor = Color.FromArgb("#74968F"),
-                                VerticalOptions = LayoutOptions.Center
-                            }
-                        }
-                    };
-
-                    TaskListContainer.Children.Add(swipeView);
+                    await _apiService.DeleteTaskAsync(task.Id);
+                    await LoadTasks();
                 }
             }
         }
-        catch (Exception ex)
-        {
-            await DisplayAlert("Error", $"Failed to load tasks: {ex.Message}", "OK");
-        }
-    }
 
-    private async Task DeleteTask(int itemId)
-    {
-        var confirmed = await DisplayAlert("Confirm", "Are you sure you want to delete this task?", "Yes", "No");
-        if (!confirmed) return;
-
-        var response = await _apiService.DeleteTaskAsync(itemId);
-        if (response.Status == 200)
+        private async void OnEditTaskClicked(object sender, EventArgs e)
         {
-            LoadTasks(); // Refresh tasks
+            if ((sender as Button)?.BindingContext is TaskModel task)
+            {
+                await Shell.Current.GoToAsync($"{nameof(EditPage)}?taskId={task.Id}");
+            }
         }
-        else
-        {
-            await DisplayAlert("Error", response.Message, "OK");
-        }
-    }
 
-    private async Task MarkAsDone(int itemId)
-    {
-        var response = await _apiService.ChangeTaskStatusAsync(itemId, "inactive");
-        if (response.Status == 200)
+        private async void OnCompletedChanged(object sender, CheckedChangedEventArgs e)
         {
-            LoadTasks(); // Refresh tasks
+            if ((sender as CheckBox)?.BindingContext is TaskModel task)
+            {
+                task.IsCompleted = e.Value;
+                await _apiService.UpdateTaskAsync(task);
+
+                if (task.IsCompleted)
+                    await Shell.Current.GoToAsync(nameof(CompletedPage));
+                else
+                    await LoadTasks();
+            }
         }
-        else
+
+        private async void OnReorderCompleted(object sender, EventArgs e)
         {
-            await DisplayAlert("Error", response.Message, "OK");
+            var reorderedTasks = TaskCollectionView.ItemsSource?.Cast<TaskModel>().ToList();
+            if (reorderedTasks == null)
+                return;
+
+            for (int i = 0; i < reorderedTasks.Count; i++)
+                reorderedTasks[i].Order = i;
+
+            await Task.WhenAll(reorderedTasks.Select(task => _apiService.UpdateTaskOrderAsync(task)));
         }
-    }
-
-    private async void GotoAddPage(object sender, EventArgs e)
-    {
-        await Shell.Current.GoToAsync("AddPage");
-    }
-
-    private async void GotoEditPage(int itemId)
-    {
-        await Shell.Current.GoToAsync($"EditPage?itemId={itemId}");
     }
 }
+
+
+

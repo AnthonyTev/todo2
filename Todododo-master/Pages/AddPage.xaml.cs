@@ -1,39 +1,42 @@
+
+using TODO.Models;
 using TODO.Services;
 
-namespace TODO.Pages;
-
-public partial class AddPage : ContentPage
+namespace TODO.Pages
 {
-    private readonly ApiService _apiService = new ApiService();
-
-    public AddPage()
+    public partial class AddPage : ContentPage
     {
-        InitializeComponent();
-    }
+        private readonly ApiService _apiService;
 
-    private async void OnAddClicked(object sender, EventArgs e)
-    {
-        string title = TitleEntry.Text?.Trim() ?? "";
-        string description = Description.Text?.Trim() ?? "";
-
-        if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description))
+        public AddPage()
         {
-            await DisplayAlert("Error", "Please enter both title and description.", "OK");
-            return;
+            InitializeComponent();
+            _apiService = new ApiService();
         }
 
-        int userId = SessionData.UserId;
-
-        var newTask = await _apiService.AddTaskAsync(title, description, userId);
-
-        if (newTask != null)
+        private async void OnAddClicked(object sender, EventArgs e)
         {
-            await DisplayAlert("Success", "Task added successfully.", "OK");
-            await Navigation.PopAsync(); // Go back to the previous page
-        }
-        else
-        {
-            await DisplayAlert("Error", "Failed to add task.", "OK");
+            var title = TitleEntry.Text?.Trim() ?? string.Empty;
+            var description = DescriptionEntry.Text?.Trim() ?? string.Empty;
+
+            var task = new TaskModel
+            {
+                Title = title,
+                Description = description,
+                UserId = SessionData.UserId
+            };
+
+            bool success = await _apiService.AddTaskAsync(task);
+
+            if (success)
+            {
+                await DisplayAlert("Success", "Task added.", "OK");
+                await Shell.Current.GoToAsync("..");
+            }
+            else
+            {
+                await DisplayAlert("Error", "Failed to add task.", "OK");
+            }
         }
     }
 }

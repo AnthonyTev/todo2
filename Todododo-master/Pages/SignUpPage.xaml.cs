@@ -1,4 +1,5 @@
 using TODO.Services;
+using TODO.Models;
 using Microsoft.Maui.Controls;
 using System;
 
@@ -53,17 +54,18 @@ namespace TODO
                 ConfirmPassword = confirmPassword
             };
 
-            var response = await _apiService.SignUpAsync(request);
+            bool success = await _apiService.SignUpAsync(request);
 
-            if (response.Status == 200)
+            if (success)
             {
-                await DisplayAlert("Success", response.Message, "OK");
+                await DisplayAlert("Success", "Account created successfully.", "OK");
                 await Shell.Current.GoToAsync("TaskPage");
             }
             else
             {
-                await DisplayAlert("Error", response.Message, "OK");
+                await DisplayAlert("Error", "Signup failed. Please try again.", "OK");
             }
+
         }
     }
 }

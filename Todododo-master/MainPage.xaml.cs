@@ -25,7 +25,7 @@ namespace TODO
 
             var result = await _apiService.SignInAsync(email, password);
 
-            if (result.Status == 200)
+            if (result.Status)//(result.Status == 200)
             {
                 await DisplayAlert("Success", $"Welcome {result.Data.FirstName}!", "Continue");
 
@@ -34,7 +34,7 @@ namespace TODO
                 
 
                 // Navigate to the task page
-                await Shell.Current.GoToAsync(nameof(Pages.TaskPage));
+                await Shell.Current.GoToAsync("//TaskPage");
             }   
             else
             {

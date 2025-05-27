@@ -1,272 +1,90 @@
-using System;
-using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
+using TODO.Models;
 
 namespace TODO.Services
 {
     public class ApiService
     {
-        private static readonly HttpClient Client = new HttpClient();
-        private const string BaseUrl = "https://todo-list.dcism.org";
+        private readonly HttpClient _httpClient;
 
-        public async Task<SignInResponse> SignInAsync(string email, string password)
+        public ApiService()
         {
-            string url = $"{BaseUrl}/signin_action.php?email={email}&password={password}";
-            try
+            _httpClient = new HttpClient
             {
-                HttpResponseMessage response = await Client.GetAsync(url);
-                string json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<SignInResponse>(json);
-            }
-            catch (Exception ex)
-            {
-                return new SignInResponse
-                {
-                    Status = 500,
-                    Message = $"Error: {ex.Message}"
-                };
-            }
+                BaseAddress = new Uri("https://your-api-url.com") // <-- replace with real URL
+            };
         }
 
-        public async Task<SignUpResponse> SignUpAsync(SignUpRequest request)
+        public async Task<TaskModel> GetTaskByIdAsync(int taskId)
         {
-            string url = $"{BaseUrl}/signup_action.php";
-            try
+            var response = await _httpClient.GetAsync($"/tasks/{taskId}");
+            if (response.IsSuccessStatusCode)
             {
-                string jsonBody = JsonConvert.SerializeObject(new
-                {
-                    first_name = request.FirstName,
-                    last_name = request.LastName,
-                    email = request.Email,
-                    password = request.Password,
-                    confirm_password = request.ConfirmPassword
-                });
-
-                var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await Client.PostAsync(url, content);
-                string json = await response.Content.ReadAsStringAsync();
-
-                Console.WriteLine("Response from server: " + json);
-
-                if (!json.TrimStart().StartsWith("{"))
-                {
-                    return new SignUpResponse
-                    {
-                        Status = 500,
-                        Message = "Invalid server response (not JSON)."
-                    };
-                }
-
-                return JsonConvert.DeserializeObject<SignUpResponse>(json);
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<TaskModel>(json);
             }
-            catch (Exception ex)
-            {
-                return new SignUpResponse
-                {
-                    Status = 500,
-                    Message = $"Error: {ex.Message}"
-                };
-            }
+            return null;
         }
 
-        public async Task<GetItemsResponse> GetTasksAsync(string status, int userId)
+        public async Task<bool> DeleteTaskAsync(int taskId)
         {
-            string url = $"{BaseUrl}/getItems_action.php?status={status}&user_id={userId}";
-            try
-            {
-                HttpResponseMessage response = await Client.GetAsync(url);
-                string json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<GetItemsResponse>(json);
-            }
-            catch (Exception ex)
-            {
-                return new GetItemsResponse
-                {
-                    Status = 500,
-                    Message = $"Error: {ex.Message}"
-                };
-            }
+            var response = await _httpClient.DeleteAsync($"/tasks/{taskId}");
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task<ApiResponse> DeleteTaskAsync(int itemId)
+        public async Task<bool> UpdateTaskAsync(TaskModel task)
         {
-            string url = $"{BaseUrl}/deleteItem_action.php?item_id={itemId}";
-            try
-            {
-                HttpResponseMessage response = await Client.DeleteAsync(url);
-                string json = await response.Content.ReadAsStringAsync();
-                return JsonConvert.DeserializeObject<ApiResponse>(json);
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse { Status = 500, Message = $"Error: {ex.Message}" };
-            }
+            var json = JsonConvert.SerializeObject(task);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PutAsync($"/tasks/{task.Id}", content);
+            return response.IsSuccessStatusCode;
         }
 
-        public async Task<ApiResponse> ChangeTaskStatusAsync(int itemId, string newStatus)
+        public async Task<bool> UpdateTaskOrderAsync(TaskModel task)
         {
-            string url = $"{BaseUrl}/statusItem_action.php";
-            try
-            {
-                string jsonBody = JsonConvert.SerializeObject(new
-                {
-                    status = newStatus,
-                    item_id = itemId
-                });
-
-                var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-                HttpResponseMessage response = await Client.PutAsync(url, content);
-                string json = await response.Content.ReadAsStringAsync();
-
-                return JsonConvert.DeserializeObject<ApiResponse>(json);
-            }
-            catch (Exception ex)
-            {
-                return new ApiResponse { Status = 500, Message = $"Error: {ex.Message}" };
-            }
+            return await UpdateTaskAsync(task);
         }
 
-        public async Task<TaskData?> AddTaskAsync(string title, string description, int userId)
+        public async Task<List<TaskModel>> GetTasksAsync(int userId)
         {
-            string url = $"{BaseUrl}/addItem_action.php";
-            try
+            var response = await _httpClient.GetAsync($"/tasks/user/{userId}");
+            if (response.IsSuccessStatusCode)
             {
-                var body = new
-                {
-                    item_name = title,
-                    item_description = description,
-                    user_id = userId
-                };
-
-                string jsonBody = JsonConvert.SerializeObject(body);
-                var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
-
-                HttpResponseMessage response = await Client.PostAsync(url, content);
-                string json = await response.Content.ReadAsStringAsync();
-
-                var result = JsonConvert.DeserializeObject<AddTaskResponse>(json);
-
-                if (result != null && result.Status == 200)
-                    return result.Data;
-
-                return null;
+                var json = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<List<TaskModel>>(json);
             }
-            catch (Exception)
-            {
-                return null;
-            }
+            return new List<TaskModel>();
         }
-    }
+        public async Task<bool> AddTaskAsync(TaskModel task)
+        {
+            var json = JsonConvert.SerializeObject(task);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("/tasks", content);
+            return response.IsSuccessStatusCode;
+        }
 
-    // ✅ Response Models
-    public class ApiResponse
-    {
-        [JsonProperty("status")]
-        public int Status { get; set; }
+        public async Task<UserModel?> SignInAsync(string email, string password)
+        {
+            var data = new { email, password };
+            var json = JsonConvert.SerializeObject(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("/auth/signin", content);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadAsStringAsync();
+                return JsonConvert.DeserializeObject<UserModel>(result);
+            }
+            return null;
+        }
 
-        [JsonProperty("message")]
-        public string Message { get; set; }
-    }
-
-    public class SignInResponse
-    {
-        [JsonProperty("status")]
-        public int Status { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; } = string.Empty;
-
-        [JsonProperty("data")]
-        public UserData Data { get; set; }
-    }
-
-    public class UserData
-    {
-        [JsonProperty("id")]
-        public int Id { get; set; }
-
-        [JsonProperty("fname")]
-        public string FirstName { get; set; } = string.Empty;
-
-        [JsonProperty("lname")]
-        public string LastName { get; set; } = string.Empty;
-
-        [JsonProperty("email")]
-        public string Email { get; set; } = string.Empty;
-    }
-
-    public class SignUpRequest
-    {
-        public string FirstName { get; set; } = string.Empty;
-        public string LastName { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public string Password { get; set; } = string.Empty;
-        public string ConfirmPassword { get; set; } = string.Empty;
-    }
-
-    public class SignUpResponse
-    {
-        [JsonProperty("status")]
-        public int Status { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; } = string.Empty;
-    }
-
-    public class GetItemsResponse
-    {
-        [JsonProperty("status")]
-        public int Status { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; } = string.Empty;
-
-        [JsonProperty("data")]
-        public Dictionary<int, TaskData> Data { get; set; }
-
-        [JsonProperty("count")]
-        public string Count { get; set; }
-    }
-
-    public class TaskData
-    {
-        [JsonProperty("item_id")]
-        public int ItemId { get; set; }
-
-        [JsonProperty("item_name")]
-        public string ItemName { get; set; } = string.Empty;
-
-        [JsonProperty("item_description")]
-        public string ItemDescription { get; set; } = string.Empty;
-
-        [JsonProperty("status")]
-        public string Status { get; set; } = string.Empty;
-
-        [JsonProperty("user_id")]
-        public int UserId { get; set; }
-
-        [JsonProperty("timemodified")]
-        public string TimeModified { get; set; } = string.Empty;
-    }
-
-    public class AddTaskResponse
-    {
-        [JsonProperty("status")]
-        public int Status { get; set; }
-
-        [JsonProperty("message")]
-        public string Message { get; set; } = string.Empty;
-
-        [JsonProperty("data")]
-        public TaskData Data { get; set; }
-    }
-
-    public static class SessionData
-    {
-        public static int UserId { get; set; }
-    }
-}
+        public async Task<bool> SignUpAsync(SignUpRequest request)
+        {
+            var json = JsonConvert.SerializeObject(request);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync("/auth/signup", content);
+            return response.IsSuccessStatusCode;
+        }
+    } 
+}     

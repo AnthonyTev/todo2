@@ -1,13 +1,46 @@
-namespace TODO.Pages;
+using TODO.Models;
+using TODO.Services;
 
-public partial class CompletedPage : ContentPage
+namespace TODO.Pages
 {
-	public CompletedPage()
-	{
-		InitializeComponent();
-	}
-    private async void GotoEditPage(object sender, EventArgs e)
+    public partial class CompletedPage : ContentPage
     {
-        await Shell.Current.GoToAsync("EditCompletedPage");
+        private readonly ApiService _apiService;
+
+        public CompletedPage()
+        {
+            InitializeComponent();
+            _apiService = new ApiService();
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            var userId = Preferences.Get("user_id", 0);
+            var tasks = await _apiService.GetTasksAsync(userId);
+            CompletedCollectionView.ItemsSource = tasks?.Where(t => t.IsCompleted).ToList();
+        }
+
+        private async void OnDeleteTaskClicked(object sender, EventArgs e)
+        {
+            if ((sender as SwipeItem)?.CommandParameter is TaskModel task)
+            {
+                if (await DisplayAlert("Confirm", "Delete this task?", "Yes", "No"))
+                {
+                    await _apiService.DeleteTaskAsync(task.Id);
+                    OnAppearing(); // refresh list
+                }
+            }
+        }
+
+        private async void GotoEditPage(object sender, EventArgs e)
+        {
+            if ((sender as SwipeItem)?.CommandParameter is TaskModel task)
+            {
+                await Shell.Current.GoToAsync($"{nameof(EditPage)}?taskId={task.Id}");
+            }
+        }
     }
 }
+
+
